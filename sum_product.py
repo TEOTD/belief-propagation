@@ -88,11 +88,9 @@ def updt_msg_C_to_i(edges, weights, s, t, msg_i_to_C):
     return msg_C_to_i
 
 def updt_msg_i_to_C(edges, s, t, msg_C_to_i):
-    # Compute new variable to cluster messages based on previous cluster to variable messages
     msg_i_to_C = {}
     for (i, j) in edges:
         msg_i_to_C[(i, j)] = {}
-        # Message from i to C (i,j)
         edges_connected_to_i = [e for e in edges if (e[0] == i or e[1] == i) and e != (i, j)]
         product_Xi_0 = 1.0
         product_Xi_1 = 1.0
@@ -113,7 +111,6 @@ def updt_msg_i_to_C(edges, s, t, msg_C_to_i):
         else:
             msg_i_to_C[(i, j)][i] = np.array([product_Xi_0, product_Xi_1]) / sum_prod_Xi
 
-        # Message from j to C (i,j)
         edges_connected_to_j = [e for e in edges if (e[0] == j or e[1] == j) and e != (i, j)]
         product_Xj_0 = 1.0
         product_Xj_1 = 1.0
