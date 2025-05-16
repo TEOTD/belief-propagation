@@ -191,7 +191,7 @@ def calculate_beth_free_energy(nodes_beliefs, edge_beliefs, weights, edges):
     return free_energy
 
 
-def sum_product(A, s, t, w, its):
+def sum_product(adjacency_matrix, weights, s, t, its):
     """Main function to compute the approximate partition function using sum-product.
     Steps:
     1. Extract edges from the adjacency matrix.
@@ -199,22 +199,22 @@ def sum_product(A, s, t, w, its):
     3. Iteratively update messages for `its` iterations.
     4. Compute node and edge beliefs.
     5. Calculate Bethe free energy and approximate Z."""
-    n = A.shape[0]
-    edges = [(i, j) for i in range(n) for j in range(n) if A[i, j] != 0 and i < j]
+    n = adjacency_matrix.shape[0]
+    edges = [(i, j) for i in range(n) for j in range(n) if adjacency_matrix[i, j] != 0 and i < j]
 
     # Initialize messages
     msg_i_to_C = init_msg_i_to_C(edges, s, t)
-    msg_C_to_i = init_msg_C_to_i(edges, w, msg_i_to_C)
+    msg_C_to_i = init_msg_C_to_i(edges, weights, msg_i_to_C)
 
     # Iterate message updates
     for _ in range(its):
-        msg_C_to_i = updt_msg_C_to_i(edges, w, s, t, msg_i_to_C)
+        msg_C_to_i = updt_msg_C_to_i(edges, weights, s, t, msg_i_to_C)
         msg_i_to_C = updt_msg_i_to_C(edges, s, t, msg_C_to_i)
 
     # Compute beliefs and free energy
     nodes_beliefs = calculate_node_beliefs(n, edges, s, t, msg_C_to_i)
-    edge_beliefs = calculate_edge_beliefs(edges, w, msg_i_to_C)
-    free_energy = calculate_beth_free_energy(nodes_beliefs, edge_beliefs, w, edges)
+    edge_beliefs = calculate_edge_beliefs(edges, weights, msg_i_to_C)
+    free_energy = calculate_beth_free_energy(nodes_beliefs, edge_beliefs, weights, edges)
     Z = np.exp(-free_energy)
 
-    return round(Z, 0), edge_beliefs  # Return integer approximation of Z
+    return round(Z, 0)  # Return integer approximation of Z
